@@ -9,6 +9,7 @@ venv/
 backend/venv/
 __pycache__/
 *.pyc
+*.pyo
 
 # Node
 node_modules/
@@ -16,3 +17,5 @@ node_modules/
 # IDE
 .vscode/
 .idea/
+
+.DS_Store
