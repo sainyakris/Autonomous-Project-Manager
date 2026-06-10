@@ -93,4 +93,4 @@ Confidence < 0.75 → Escalate to human + notify
 
 - Phase 1 — Core backend (auth, tasks, NLP, dashboard, reports)
 - Phase 2 — Confidence-gated autonomy engine
--Phase 3 — Next.js frontend (in progress)
+- Phase 3 — Next.js frontend (in progress)
