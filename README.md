@@ -2,7 +2,7 @@
 
 > The project manager that acts, not just advises.
 
-An AI-powered autonomous project management system with **confidence-gated autonomy** — the AI acts independently on high-confidence decisions and escalates low-confidence ones to humans.
+An AI-powered autonomous project management system with **confidence-gated autonomy** the AI acts independently on high-confidence decisions and escalates low-confidence ones to humans.
 
 ## What makes this different
 
