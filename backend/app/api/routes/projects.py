@@ -3,8 +3,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.database import get_db
 from app.models.models import Project, Task, User
-from app.schemas.schemas import ProjectCreate, ProjectOut, TaskOut
-from app.agents.ai_agent import generate_tasks_from_description
+from app.schemas.schemas import (
+    ProjectCreate, ProjectOut, TaskOut,
+    ProjectAnalyzeRequest, ProjectCreateWithContext
+)
+from app.agents.ai_agent import (
+    generate_tasks_from_description,
+    generate_tasks_with_context,
+    analyze_project_description
+)
 from jose import JWTError, jwt
 from app.core.config import settings
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -32,6 +39,75 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     return user
+
+
+@router.post("/analyze")
+async def analyze_project(
+    data: ProjectAnalyzeRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        analysis = await analyze_project_description(
+            description=data.description,
+            project_name=data.name,
+        )
+        return analysis
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {e}")
+
+
+@router.post("/create-with-context", response_model=ProjectOut)
+async def create_project_with_context(
+    data: ProjectCreateWithContext,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    project = Project(
+        name=data.name,
+        description=data.description,
+        owner_id=current_user.id,
+    )
+    db.add(project)
+    await db.flush()
+
+    try:
+        if data.answers:
+            ai_result = await generate_tasks_with_context(
+                project_name=data.name,
+                description=data.description,
+                answers=data.answers,
+                team_skills=current_user.skills,
+            )
+        else:
+            ai_result = await generate_tasks_from_description(
+                project_name=data.name,
+                description=data.description,
+                team_skills=current_user.skills,
+                deadline_days=data.deadline_days,
+            )
+
+        for t in ai_result.get("tasks", []):
+            task = Task(
+                project_id=project.id,
+                title=t["title"],
+                description=t.get("description"),
+                priority=t.get("priority", "medium"),
+                estimated_hours=t.get("estimated_hours"),
+                required_skills=t.get("required_skills", []),
+                dependencies=t.get("dependencies", []),
+                ai_generated=True,
+            )
+            db.add(task)
+
+        project.risk_level = ai_result.get("risk_level", "low")
+
+    except Exception as e:
+        print(f"AI task generation failed: {e}")
+
+    await db.flush()
+    await db.refresh(project)
+    return project
 
 
 @router.post("/", response_model=ProjectOut)

@@ -79,3 +79,21 @@ class UpdateOut(BaseModel):
     parsed_sentiment: Optional[str]
     created_at: datetime
     model_config = {"from_attributes": True}
+
+
+class ProjectAnalyzeRequest(BaseModel):
+    name: str
+    description: str
+
+
+class ClarificationAnswer(BaseModel):
+    question_id: str
+    question: str
+    answer: str
+
+
+class ProjectCreateWithContext(BaseModel):
+    name: str
+    description: str
+    answers: Optional[dict] = {}
+    deadline_days: Optional[int] = None
