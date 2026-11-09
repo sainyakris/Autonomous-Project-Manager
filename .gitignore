@@ -1,21 +1,18 @@
-# Environment variables
+# Secrets: never commit these
 .env
-backend/.env
-frontend/.env
-frontend/.env.local
+.env.*
+!.env.example
 
 # Python
 venv/
-backend/venv/
 __pycache__/
 *.pyc
-*.pyo
+.pytest_cache/
 
 # Node
 node_modules/
+.next/
 
-# IDE
-.vscode/
-.idea/
-
+# OS and editor
 .DS_Store
+.vscode/
