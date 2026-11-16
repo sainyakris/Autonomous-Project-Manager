@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str          # no default, same reason
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     FRONTEND_URL: str = "http://localhost:3000"
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     @field_validator("DATABASE_URL")
     @classmethod
