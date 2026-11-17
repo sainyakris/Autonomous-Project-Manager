@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/sainyakris/Autonomous-Project-Manager/actions/workflows/ci.yml/badge.svg)
 
-An AI project manager that turns plain-English project briefs into dependency-linked task plans and acts on routine decisions on its own, escalating to a human when it isn't confident.
+An AI project manager that turns plain English project briefs into dependency linked task plans and acts on routine decisions on its own, escalating to a human when it isn't confident.
 
 > **Status:** Under active development. Features are being added incrementally and this README will be updated as the project progresses. The original prototype is preserved on the [`legacy-v1`](../../tree/legacy-v1) branch.
 
