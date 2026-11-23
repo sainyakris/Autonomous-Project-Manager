@@ -2,7 +2,10 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, DateTime, Float, ForeignKey, String, Text, func
+from sqlalchemy import (
+    JSON, CheckConstraint, Column, DateTime, Float, ForeignKey,
+    Integer, String, Table, Text, func,
+)
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -45,6 +48,15 @@ class TaskPriority(str, enum.Enum):
     HIGH = "high"
     CRITICAL = "critical"
 
+# Many-to-many link between tasks: "task_id cannot start until depends_on_id is done"
+task_dependencies = Table(
+    "task_dependencies",
+    Base.metadata,
+    Column("task_id", ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True),
+    Column("depends_on_id", ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True),
+    CheckConstraint("task_id <> depends_on_id", name="ck_task_not_self_dependent"),
+)
+
 
 class User(Base):
     __tablename__ = "users"
@@ -64,6 +76,10 @@ class User(Base):
 class Project(Base):
     __tablename__ = "projects"
 
+    summary: Mapped[str | None] = mapped_column(Text)
+    risk_level: Mapped[str | None] = mapped_column(String(20))
+    context: Mapped[dict | None] = mapped_column(JSON)  # the answers from the intake questions
+     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     name: Mapped[str] = mapped_column(String(200))
     description: Mapped[str | None] = mapped_column(Text)
@@ -83,6 +99,8 @@ class Project(Base):
 
 class Task(Base):
     __tablename__ = "tasks"
+
+    position: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     project_id: Mapped[str] = mapped_column(
